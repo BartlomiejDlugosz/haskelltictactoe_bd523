@@ -7,12 +7,12 @@ import Player
 import Helpers
 
 import Text.Read (readMaybe)
-import Data.List (intersperse)
+import Data.List (intercalate)
 
 import System.IO (hSetBuffering, stdout, stdin, BufferMode(NoBuffering))
 
 prettyPrint :: Board -> IO ()
-prettyPrint = undefined
+prettyPrint b = putStrLn (intercalate "\n--+---+---+---\n" (map (intercalate " | " . map show) (rows testBoard1)))
 
 -- The following reflect the suggested structure, but you can manage the game
 -- in any way you see fit.
@@ -26,7 +26,7 @@ prettyPrint = undefined
 -- | Repeatedly read a target board position and invoke tryMove until
 -- the move is successful (Just ...).
 takeTurn :: Board -> Player -> IO Board
-takeTurn = undefined
+takeTurn b p = undefined
 
 -- | Manage a game by repeatedly: 1. printing the current board, 2. using
 -- takeTurn to return a modified board, 3. checking if the game is over,
@@ -40,6 +40,7 @@ playGame = undefined
 main :: IO ()
 main = do
   disableBuffering -- don't remove!
+  prettyPrint testBoard1
   return ()
 
 {-|
