@@ -1,4 +1,4 @@
-module TicTacToe (gameOver, parsePosition, tryMove) where
+module TicTacToe (checkDraw, gameOver, parsePosition, tryMove) where
 
 import Data.List (nub)
 import Text.Read (readMaybe)
@@ -10,11 +10,24 @@ import Helpers
 
 type Position = (Int, Int)
 
+checkDraw :: [[Cell]] -> Bool
+checkDraw = foldr (\x -> (&&) (
+                        case nub x of
+                                [Taken a, Taken b] -> True
+                                _ -> False
+                        )) True
+
 gameOver :: Board -> Bool
 gameOver b = check (cols b) || check (rows b) || check (diags b)
         where
                 check :: [[Cell]] -> Bool
-                check = foldr (\x -> (||) (all (\f -> f == head x && not (isEmpty f)) x)) False
+                check = foldr (\x -> (||) (
+                                        case nub x of
+                                                [Taken p] -> True
+                                                _ -> False
+                                )) False
+
+
 
 --
 -- Moves must be of the form "row col" where row and col are integers

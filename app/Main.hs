@@ -41,7 +41,7 @@ takeTurn original player = do
                         prettyPrint new
                         return new
                 Nothing -> do
-                        putStr "Invalid input. Please try again"
+                        putStrLn "Invalid input. Please try again"
                         takeTurn original player
 
 -- | Manage a game by repeatedly: 1. printing the current board, 2. using
@@ -52,7 +52,9 @@ playGame :: Board -> Player -> IO ()
 playGame b p = do
         newBoard <- takeTurn b p
         if gameOver newBoard then 
-                putStrLn "Game over" 
+                putStrLn ("Player " ++ show p ++ " won! Game over" )
+        else if checkDraw (rows newBoard) then
+                putStrLn "It's a draw! No one won"
         else 
                 playGame newBoard (swap p)
 
