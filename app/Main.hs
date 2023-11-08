@@ -12,7 +12,7 @@ import Data.List (intercalate)
 import System.IO (hSetBuffering, stdout, stdin, BufferMode(NoBuffering))
 
 prettyPrint :: Board -> IO ()
-prettyPrint b = putStrLn (intercalate "\n--+---+---+---\n" (map (intercalate " | " . map show) (rows testBoard1)))
+prettyPrint b@(Board n _) = putStrLn (intercalate ("\n-" ++ concat (replicate (n - 1) "-+--") ++ "-\n") (map (intercalate " | " . map show) (rows b)))
 
 -- The following reflect the suggested structure, but you can manage the game
 -- in any way you see fit.
@@ -20,27 +20,53 @@ prettyPrint b = putStrLn (intercalate "\n--+---+---+---\n" (map (intercalate " |
 -- You might like to use one of the following signatures, as per the spec.
 -- but this is up to you.
 --
--- doParseAction :: (String -> Maybe a) -> IO a
--- doParseAction :: String -> (String -> Maybe a) -> IO a
+doParseAction :: String -> (String -> Maybe a) -> IO a
+doParseAction prompt f = do
+    putStr prompt
+    s <- getLine
+    case f s of
+        Just b  -> return b
+        Nothing -> do
+            putStrLn "Invalid input. Please try again."
+            doParseAction prompt f
+
 
 -- | Repeatedly read a target board position and invoke tryMove until
 -- the move is successful (Just ...).
 takeTurn :: Board -> Player -> IO Board
-takeTurn b p = undefined
+takeTurn original player = do
+        position <- doParseAction ("Player " ++ show player ++ ". Please enter a position: ") parsePosition
+        case tryMove player position original of
+                Just new -> do
+                        prettyPrint new
+                        return new
+                Nothing -> do
+                        putStr "Invalid input. Please try again"
+                        takeTurn original player
 
 -- | Manage a game by repeatedly: 1. printing the current board, 2. using
 -- takeTurn to return a modified board, 3. checking if the game is over,
 -- printing the board and a suitable congratulatory message to the winner
 -- if so.
 playGame :: Board -> Player -> IO ()
-playGame = undefined
+playGame b p = do
+        newBoard <- takeTurn b p
+        if gameOver newBoard then 
+                putStrLn "Game over" 
+        else 
+                playGame newBoard (swap p)
+
 
 -- | Print a welcome message, read the board dimension, invoke playGame and
 -- exit with a suitable message.
 main :: IO ()
 main = do
   disableBuffering -- don't remove!
-  prettyPrint testBoard1
+  putStrLn "Welcome to tictactoe!"
+  boardSize <- doParseAction "Please enter a board size: " (readMaybe :: String -> Maybe Int)
+  let b = emptyBoard boardSize
+  prettyPrint b
+  playGame b X
   return ()
 
 {-|
