@@ -12,7 +12,11 @@ import Data.List (intercalate)
 import System.IO (hSetBuffering, stdout, stdin, BufferMode(NoBuffering))
 
 prettyPrint :: Board -> IO ()
-prettyPrint b@(Board n _) = putStrLn (intercalate ("\n-" ++ concat (replicate (n - 1) "-+--") ++ "-\n") (map (intercalate " | " . map show) (rows b)))
+prettyPrint b@(Board n _) = do
+        putStr "\ESC[2J"
+        putStrLn ("┏━" ++ concat (replicate (n - 1) "━━┳━") ++ "━━┓")
+        putStrLn (intercalate ("\n┣━━" ++ concat (replicate (n - 1) "━╋━━") ++ "━┫\n") (map ((++ " ┃") . ("┃ " ++) . intercalate " ┃ " . map show) (rows b)))
+        putStrLn ("┗━" ++ concat (replicate (n - 1) "━━┻━") ++ "━━┛")
 
 -- The following reflect the suggested structure, but you can manage the game
 -- in any way you see fit.
